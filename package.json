@@ -1,6 +1,6 @@
 {
-  "name": "gulp-env",
-  "version": "0.1.0",
+  "name": "minigulp",
+  "version": "0.1.1",
   "description": "This module allows you to utilize gulp modules outside of gulp.  This is not meant to replace orchestration - if you use this,  you are assuming responsibility for orchestration.  If you don't want to do that, use gulp!",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joeenzminger/gulp-env.git"
+    "url": "git+https://github.com/joeenzminger/minigulp.git"
   },
   "keywords": [
     "gulp"
@@ -16,9 +16,9 @@
   "author": "Joe Enzminger",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/joeenzminger/gulp-env/issues"
+    "url": "https://github.com/joeenzminger/minigulp/issues"
   },
-  "homepage": "https://github.com/joeenzminger/gulp-env#readme",
+  "homepage": "https://github.com/joeenzminger/minigulp#readme",
   "dependencies": {
     "end-of-stream": "^1.1.0",
     "q": "^1.4.1",

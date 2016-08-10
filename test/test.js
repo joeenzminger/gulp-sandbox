@@ -1,6 +1,6 @@
 ﻿var assert = require('assert');
 var env = require('../index.js');
-describe('gulp-env', function () {
+describe('minigulp', function () {
     describe('#task', function () {
         it('should return a promise', function () {
             var ret = env.task(function () {

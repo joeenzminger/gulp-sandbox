@@ -2,8 +2,8 @@
 modification of the orchestrator's runTask library.  
 
 ```javascript
-var env = require('gulp-env');
-env.task(function(){
+var minigulp = require('minigulp');
+minigulp.task(function(){
 	return gulp.src('/pathToFiles/*')
 		.pipe(gulp.dest());
 }).then(function() {
@@ -14,6 +14,6 @@ env.task(function(){
 ```
 
 Note:  if you don't return anything from your task or return something other than a stream or promise, the promise will be resolved immediately (i.e, a synchronous task).  Similar to how the 
-orchestrator loses the ability to determine if your task is finished in this case, gulp-env doesn't know how to monitor
+orchestrator loses the ability to determine if your task is finished in this case, minigulp doesn't know how to monitor
 for completion if you don't return a value.
 
