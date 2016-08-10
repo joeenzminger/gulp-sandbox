@@ -1,0 +1,27 @@
+{
+  "name": "gulp-env",
+  "version": "1.0.0",
+  "description": "This module allows you to utilize gulp modules outside of gulp.  This is not meant to replace orchestration - if you use this,  you are assuming responsibility for orchestration.  If you don't want to do that, use gulp!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joeenzminger/gulp-env.git"
+  },
+  "keywords": [
+    "gulp"
+  ],
+  "author": "Joe Enzminger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joeenzminger/gulp-env/issues"
+  },
+  "homepage": "https://github.com/joeenzminger/gulp-env#readme",
+  "dependencies": {
+    "end-of-stream": "^1.1.0",
+    "q": "^1.4.1",
+    "stream-consume": "^0.1.0"
+  }
+}
