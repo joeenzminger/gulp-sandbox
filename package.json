@@ -1,6 +1,6 @@
 {
   "name": "minigulp",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "This module allows you to utilize gulp modules outside of gulp.  This is not meant to replace orchestration - if you use this,  you are assuming responsibility for orchestration.  If you don't want to do that, use gulp!",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/joeenzminger/minigulp#readme",
   "dependencies": {
     "end-of-stream": "^1.1.0",
+    "gulp": "^3.9.1",
     "q": "^1.4.1",
     "stream-consume": "^0.1.0"
   },

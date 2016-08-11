@@ -3,8 +3,27 @@
 var q = require('q');
 var eos = require('end-of-stream');
 var consume = require('stream-consume');
+var gulp = require('gulp');
 
-exports.task = function (task) {
+module.exports.gulp = function () {
+    let inst = new gulp.constructor();
+    inst.run = function () {
+        let defer = q.defer();
+        var tasks = arguments.length ? arguments : ['default'];
+        
+        inst.on('stop', function (e) {
+            defer.resolve(e);
+        });
+        inst.on('err', function (e) {
+            defer.reject(e);
+        });
+        inst.start.apply(inst, tasks);
+        return defer.promise;
+    };
+    return inst;
+}
+
+module.exports.task = function (task) {
     var ret, defer = q.defer();
     try {
         ret = task(function (err, result) {
