@@ -32,6 +32,7 @@ gulp.run('deploy').then(function(){
 ```
 
 *Stand alone tasks*
+
 Occasionally, you might find yourself wanting to run a gulp snippet outside of the orchestrator.  minigulp provides
 a task() method that allows you to do this.
 
