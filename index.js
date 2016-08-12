@@ -1,16 +1,16 @@
 ﻿"use strict";
-//If this code looks familiar, it should!  It is a modified version of the gulp orchestrator's runTask module.  
-var q = require('q');
-var eos = require('end-of-stream');
-var consume = require('stream-consume');
 var gulp = require('gulp');
+var q = require('Q');
+var assert = require('assert').ok;
+var util = require('util');
+var Module = require('module');
 
-module.exports.gulp = function () {
+var minigulp = function () {
     let inst = new gulp.constructor();
     inst.run = function () {
         let defer = q.defer();
         var tasks = arguments.length ? arguments : ['default'];
-        
+
         inst.on('stop', function (e) {
             defer.resolve(e);
         });
@@ -20,39 +20,35 @@ module.exports.gulp = function () {
         inst.start.apply(inst, tasks);
         return defer.promise;
     };
+    inst.load = function (path, parent) {
+        console.log('load');
+        console.log(path);
+        assert(path, 'missing path');
+        assert(util.isString(path), 'path must be a string');
+        var filename = Module._resolveFilename(path, parent);
+        console.log(filename);
+        var gulpfile = new Module(filename, parent);
+        var base = gulpfile.require;
+        gulpfile.require = function (request) {
+            if (request === 'gulp') {
+                return inst;
+            }
+            return base(request);
+        }
+        gulpfile.load(filename);
+        return module.exports;
+    };
     return inst;
-}
+};
+
+module.exports.gulp = minigulp;
 
 module.exports.task = function (task) {
-    var ret, defer = q.defer();
-    try {
-        ret = task(function (err, result) {
-            err ? defer.reject(err) : defer.resolve(result);
-        });
-    } catch (err) {
-        defer.reject(err);
-    }
-
-    if (ret && typeof r.then === 'function') {
-        // wait for promise to resolve
-        // FRAGILE: ASSUME: Promises/A+, see http://promises-aplus.github.io/promises-spec/
-        return ret;
-    } else if (ret && typeof r.pipe === 'function') {
-        // wait for stream to end
-
-        eos(ret, { error: true, readable: ret.readable, writable: ret.writable && !ret.readable }, function (err) {
-            err ? defer.reject(err) : defer.resolve();
-        });
-
-        // Ensure that the stream completes
-        consume(ret);
-
-    } else if (task.length === 0) {
-        // synchronous, function took in args.length parameters, and the callback was extra
-        defer.resolve(ret);
-    }
-    else {
-        defer.resolve(ret)
-    }
-    return defer.promise;
+    var instance = minigulp();
+    instance.task('default', function (cb) {
+        return task(function (err, result) {
+            cb(err, result);
+        }, instance);
+    });
+    return instance.run();
 };

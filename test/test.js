@@ -39,6 +39,16 @@ describe('minigulp', function () {
                 console.log('err: ' + JSON.stringify(err));
             })
         });
+        it('should load gulpfile', function () {
+            var inst = env.gulp();
+            inst.load('./gulpfile', module);
+            inst.run('default').then(function () {
+                console.log('finished');
+            },
+            function (err) {
+                console.log('err: ' + JSON.stringify(err));
+            })
+        });
     });
 });
 
