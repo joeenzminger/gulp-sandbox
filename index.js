@@ -36,7 +36,7 @@ var minigulp = function () {
             return base(request);
         }
         gulpfile.load(filename);
-        return module.exports;
+        return gulpfile.exports;
     };
     return inst;
 };
