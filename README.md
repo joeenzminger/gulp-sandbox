@@ -1,16 +1,11 @@
-﻿Using node, when you 
+﻿In large projects or when using gulp as an orchestrator there is often a requirement to run multiple independent gulpfiles in the same process.  Gulp is designed to be a singleton and the most common usage pattern is to invoke it from the command line.  This creates a requirement that task names for independent modules be unique - two modules cannot have a task with the same name.
+﻿
+Existing solutions (like gulp-chug), use exec to fork new processes to run the gulpfiles independently.  This appears to not be a popular approach for a number of reasons.
 
-```
-var gulp = require('gulp');
-```
+minigulp is designed to accomplish the same goal without writing complicated layers of abstraction around the existing gulp infrastructure.  It uses gulp, but it extends it to allow developers to create multiple instances of gulp within the same process.  These instances are wholly independent but run in the same process.  Developers can build task modules and invoke them in other task modules without worrying about task name collisions.  
 
-the instance of gulp that is returned is global to the node process.  This usually isn't a problem when you use gulp 
-from the command line, but if you are trying to invoke it as part of a larger library having a single global gulp instance
-that is shared across the process can be a problem.  For instance, if you have two libraries that define tasks, if they
-use the same name for the task one will overrwite the other.
+Since minigulp simply extends gulp, all of gulps existing and future functionality are and will remain available - in fact, gulpfiles developed for minigulp will work with gulp without modification (although there are a set of features that minigulp provides to facilitate using gulp as part of a build and deployment infrastructure that break this abstraction - those api methods are appropriately noted).
 
-Minigulp solves that problem by providing you with a way to run multiple isolated instances of gulp (or more specifically,
-the gulp orchestrator) in your process.
 
 *A basic example*
 
