@@ -22,7 +22,18 @@ describe('minigulp', function () {
             },
             function (err) {
                 console.log('err: ' + err);
-            })
+            });
+        });
+        it('should run', function () {
+            var inst = env.gulp();
+            inst.task('default', function () {
+                console.log('default task');
+            });
+            inst.run().then(function () {
+                console.log('finished');
+            }, function (err) {
+                console.log('err: ' + err);
+            });
         });
         it('should error', function () {
             var inst = env.gulp();
@@ -38,6 +49,29 @@ describe('minigulp', function () {
             function (err) {
                 console.log('err: ' + JSON.stringify(err));
             })
+        });
+        it('should run all tasks', function () {
+            var inst = env.gulp();
+            inst.task('a', ['b', 'c'], function () {
+                console.log('a');
+            });
+
+            inst.task('b', ['c'], function () {
+                console.log('b');
+            });
+
+            inst.task('c', function () {
+                console.log('c');
+            });
+
+            inst.task('d', function () {
+                console.log('d');
+            });
+            inst.exec().then(function () {
+                console.log('success');
+            }, function (err) {
+                console.log(err);
+            });
         });
         it('should load gulpfile', function () {
             var inst = env.gulp();

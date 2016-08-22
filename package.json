@@ -1,6 +1,6 @@
 {
-  "name": "minigulp",
-  "version": "0.3.0",
+  "name": "gulp-sandbox",
+  "version": "0.4.0",
   "description": "A module for running sandboxed instances of gulp within a node.js application.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joeenzminger/minigulp.git"
+    "url": "git+https://github.com/joeenzminger/gulp-sandbox.git"
   },
   "keywords": [
     "gulp"

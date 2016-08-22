@@ -75,6 +75,17 @@ gulp.task('default', function() {
 
 Note that you have to pass the module to gulp.load()
 
+*Run all registered tasks*
+
+This is not a feature of gulp (but maybe it should be).  Given a set of registered tasks, exec() finds all of 
+the root tasks and executes them.  This guarantees that every task defined will get run once (and only once).
+
+Both exec() and run() return a promise.
+
+
+
+
+
 
 
 

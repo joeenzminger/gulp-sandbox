@@ -5,22 +5,23 @@ var assert = require('assert').ok;
 var util = require('util');
 var Module = require('module');
 
-var minigulp = function () {
-    let inst = new gulp.constructor();
-    inst.run = function () {
+var sandbox = function () {
+    let that = new gulp.constructor();
+   
+    that.run = function () {
         let defer = q.defer();
         var tasks = arguments.length ? arguments : ['default'];
 
-        inst.on('stop', function (e) {
+        that.on('stop', function (e) {
             defer.resolve(e);
         });
-        inst.on('err', function (e) {
+        that.on('err', function (e) {
             defer.reject(e);
         });
-        inst.start.apply(inst, tasks);
+        that.start.apply(that, tasks);
         return defer.promise;
     };
-    inst.load = function (path, parent) {
+    that.load = function (path, parent) {
         console.log('load');
         console.log(path);
         assert(path, 'missing path');
@@ -31,20 +32,44 @@ var minigulp = function () {
         var base = gulpfile.require;
         gulpfile.require = function (request) {
             if (request === 'gulp') {
-                return inst;
+                return that;
             }
             return base(request);
         }
         gulpfile.load(filename);
         return module.exports;
     };
-    return inst;
+    
+    that.exec = function () {
+        var tasks = {};
+        for (let i in that.tasks) {
+            tasks[i] = true;
+        }
+
+        for (let i in that.tasks) {
+            var task = that.tasks[i];
+            var dependencies = task.dep;
+            dependencies.forEach(function (dependency) {
+                if (tasks[dependency]) {
+                    delete tasks[dependency];
+                }
+            });
+        }
+
+        var run = [];
+        for (var i in tasks) {
+            run.push(i);
+        }
+
+        return that.run(run);
+    }
+    return that;
 };
 
-module.exports.gulp = minigulp;
+module.exports.gulp = sandbox;
 
 module.exports.task = function (task) {
-    var instance = minigulp();
+    var instance = sandbox();
     instance.task('default', function (cb) {
         return task(function (err, result) {
             cb(err, result);
