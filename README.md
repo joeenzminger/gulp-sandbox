@@ -2,16 +2,16 @@
 ﻿
 Existing solutions (like gulp-chug), use exec to fork new processes to run the gulpfiles independently.  This appears to not be a popular approach for a number of reasons.
 
-minigulp is designed to accomplish the same goal without writing complicated layers of abstraction around the existing gulp infrastructure.  It uses gulp, but it extends it to allow developers to create multiple instances of gulp within the same process.  These instances are wholly independent but run in the same process.  Developers can build task modules and invoke them in other task modules without worrying about task name collisions.  
+gulp-sandbox is designed to accomplish the same goal without writing complicated layers of abstraction around the existing gulp infrastructure.  It uses gulp, but it extends it to allow developers to create multiple instances of gulp within the same process.  These instances are wholly independent but run in the same process.  Developers can build task modules and invoke them in other task modules without worrying about task name collisions.  
 
-Since minigulp simply extends gulp, all of gulps existing and future functionality are and will remain available - in fact, gulpfiles developed for minigulp will work with gulp without modification (although there are a set of features that minigulp provides to facilitate using gulp as part of a build and deployment infrastructure that break this abstraction - those api methods are appropriately noted).
+Since gulp-sandbox simply extends gulp, all of gulps existing and future functionality are and will remain available - in fact, gulpfiles developed for gulp-sandbox will work with gulp without modification (although there are a set of features that gulp-sandbox provides to facilitate using gulp as part of a build and deployment infrastructure that break this abstraction - those api methods are appropriately noted).
 
 
 *A basic example*
 
 ```
-var minigulp = require('minigulp');
-var gulp = minigulp.gulp();
+var sandbox = require('gulp-sandbox');
+var gulp = sandbox.gulp();
 gulp.task('build', function(){
     //do some gulpy stuff
 });
@@ -28,12 +28,12 @@ gulp.run('deploy').then(function(){
 
 *Stand alone tasks*
 
-Occasionally, you might find yourself wanting to run a gulp snippet outside of the orchestrator.  minigulp provides
+Occasionally, you might find yourself wanting to run a gulp snippet outside of the orchestrator.  gulp-sandbox provides
 a task() method that allows you to do this.
 
 ```javascript
-var minigulp = require('minigulp');
-minigulp.task(function(cb, gulp){
+var sandbox = require('gulp-sandbox');
+sandbox.task(function(cb, gulp){
 	return gulp.src('/pathToFiles/*')
 		.pipe(gulp.dest());
 }).then(function() {
@@ -51,8 +51,8 @@ callback.
 You can use existing gulpfiles (or other modules that contain tasks), without modification.  
 
 ```
-var minigulp = require('minigulp');
-var gulp = minigulp.gulp();
+var sandbox = require('gulp-sandbox');
+var gulp = sandbox.gulp();
 gulp.load('./gulpfile', module);
 gulp.run().then(function(){
 	//it worked!
@@ -73,7 +73,33 @@ Note that you have to pass the module to gulp.load()
 *Run all registered tasks*
 
 This is not a feature of gulp (but maybe it should be).  Given a set of registered tasks, exec() finds all of 
-the root tasks and executes them.  This guarantees that every task defined will get run once (and only once).
+the root tasks and executes them.  This guarantees that every task defined will get run once (and only once). 
+
+```
+var sandbox = require('gulp-sandbox');
+var gulp = sandbox.gulp();
+            gulp.task('a', ['b', 'c'], function () {
+                console.log('a');
+            });
+
+            gulp.task('b', ['c'], function () {
+                console.log('b');
+            });
+
+            gulp.task('c', function () {
+                console.log('c');
+            });
+
+            gulp.task('d', function () {
+                console.log('d');
+            });
+            gulp.exec().then(function () {
+                console.log('success');
+            }, function (err) {
+                console.log(err);
+            });
+
+```
 
 Both exec() and run() return a promise.
 
