@@ -78,26 +78,26 @@ the root tasks and executes them.  This guarantees that every task defined will 
 ```
 var sandbox = require('gulp-sandbox');
 var gulp = sandbox.gulp();
-            gulp.task('a', ['b', 'c'], function () {
-                console.log('a');
-            });
+gulp.task('a', ['b', 'c'], function () {
+    console.log('a');
+});
 
-            gulp.task('b', ['c'], function () {
-                console.log('b');
-            });
+gulp.task('b', ['c'], function () {
+    console.log('b');
+});
 
-            gulp.task('c', function () {
-                console.log('c');
-            });
+gulp.task('c', function () {
+    console.log('c');
+});
 
-            gulp.task('d', function () {
-                console.log('d');
-            });
-            gulp.exec().then(function () {
-                console.log('success');
-            }, function (err) {
-                console.log(err);
-            });
+gulp.task('d', function () {
+    console.log('d');
+});
+gulp.exec().then(function () {
+    console.log('success');
+}, function (err) {
+    console.log(err);
+});
 
 ```
 
