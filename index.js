@@ -37,7 +37,7 @@ var sandbox = function () {
             return base(request);
         }
         gulpfile.load(filename);
-        return module.exports;
+        return gulpfile.exports;
     };
     
     that.exec = function () {
