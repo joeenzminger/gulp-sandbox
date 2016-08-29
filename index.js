@@ -39,6 +39,14 @@ var sandbox = function () {
         gulpfile.load(filename);
         return gulpfile.exports;
     };
+
+    that.error = function (err) {
+    	var errorInstance = new sandbox();
+    	errorInstance.task('error', function () {
+    		throw err;
+    	});
+    	return errorInstance.exec();
+    }
     
     that.exec = function () {
         var tasks = {};

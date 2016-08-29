@@ -83,6 +83,15 @@ describe('minigulp', function () {
                 console.log('err: ' + JSON.stringify(err));
             })
         });
+        it('should error', function () {
+        	var inst = env.gulp();
+        	inst.error({
+				errorMessage: 'test error'
+        	}).then(function () {
+        	}, function (err) {
+        		console.log(err);
+        	});
+        });
     });
 });
 
