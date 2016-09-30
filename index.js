@@ -1,6 +1,6 @@
 ﻿"use strict";
 var gulp = require('gulp');
-var q = require('Q');
+var Q = require('q');
 var assert = require('assert').ok;
 var util = require('util');
 var Module = require('module');
@@ -9,7 +9,7 @@ var sandbox = function () {
     let that = new gulp.constructor();
    
     that.run = function () {
-        let defer = q.defer();
+        let defer = Q.defer();
         var tasks = arguments.length ? arguments : ['default'];
 
         that.on('stop', function (e) {
