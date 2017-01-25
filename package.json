@@ -1,6 +1,6 @@
 {
   "name": "gulp-sandbox",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A module for running sandboxed instances of gulp within a node.js application.",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,8 @@
   "homepage": "https://github.com/joeenzminger/minigulp#readme",
   "dependencies": {
     "gulp": "^3.9.1",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "mocha": "^3.0.2"

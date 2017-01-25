@@ -4,6 +4,7 @@ var Q = require('q');
 var assert = require('assert').ok;
 var util = require('util');
 var Module = require('module');
+var uuid = require('uuid');
 
 var sandbox = function () {
     let that = new gulp.constructor();
@@ -22,12 +23,10 @@ var sandbox = function () {
         return defer.promise;
     };
     that.load = function (path, parent) {
-        console.log('load');
-        console.log(path);
         assert(path, 'missing path');
         assert(util.isString(path), 'path must be a string');
+        parent = parent || require.main;
         var filename = Module._resolveFilename(path, parent);
-        console.log(filename);
         var gulpfile = new Module(filename, parent);
         var base = gulpfile.require;
         gulpfile.require = function (request) {
@@ -39,6 +38,23 @@ var sandbox = function () {
         gulpfile.load(filename);
         return gulpfile.exports;
     };
+
+    that.all = function (tasks, dependencies) {
+    	var tasks = [];
+    	for (var i in tasks) {
+    		(function (task) {
+    			var id = uuid.v1();
+    			tasks.push(id);
+    			that.task(id, dependencies || [], task);
+    		})(tasks[i]);
+    	}
+    	return {
+    		then: function (name, task) {
+    			that.task(name, tasks, task);
+    			return that;
+    		}
+    	}
+    }
 
     that.error = function (err) {
     	var errorInstance = new sandbox();
@@ -77,11 +93,7 @@ var sandbox = function () {
 module.exports.gulp = sandbox;
 
 module.exports.task = function (task) {
-    var instance = sandbox();
-    instance.task('default', function (cb) {
-        return task(function (err, result) {
-            cb(err, result);
-        }, instance);
-    });
+	var instance = sandbox();
+	instance.task('default', task);
     return instance.run();
 };
