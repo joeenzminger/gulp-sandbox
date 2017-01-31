@@ -6,6 +6,22 @@ var util = require('util');
 var Module = require('module');
 var uuid = require('uuid');
 
+var handlers = {};
+
+var $emit = function (evt, data) {
+	if (handlers[evt]) {
+		for (var i = 0; i < handlers[evt].length; ++i) {
+			handlers[evt][i](data);
+		}
+	}
+
+	if (handlers['all']) {
+		for (var i = 0; i < handlers['all'].length; ++i) {
+			handlers['all'][i](evt, data);
+		}
+	}
+}
+
 var sandbox = function () {
     let that = new gulp.constructor();
    
@@ -17,6 +33,7 @@ var sandbox = function () {
             defer.resolve(e);
         });
         that.on('err', function (e) {
+        	$emit('error', e);
             defer.reject(e);
         });
         that.start.apply(that, tasks);
@@ -89,6 +106,51 @@ var sandbox = function () {
     }
     return that;
 };
+
+
+sandbox.$on = function (evt, handler) {
+	if (typeof (handler) === 'function') {
+		handlers[evt] = handlers[evt] || [];
+		var h = function (data) {
+			try {
+				handler(data);
+			} catch (ex) {
+			}
+		};
+		handlers[evt].push(h);
+		return function () {
+			var index = handlers[evt].indexOf(h);
+			if (index > -1) {
+				handlers[evt].splice(index, 1);
+			}
+		};
+	}
+	return function () {
+	};
+}
+
+sandbox.$all = function (handler) {
+	if (typeof (handler) === 'function') {
+		handlers['all'] = handlers['all'] || [];
+		var h = function (evt, data) {
+			try {
+				handler(evt, data);
+			} catch (ex) {
+			}
+		};
+		handlers['all'].push(h);
+		return function () {
+			var index = handlers[evt].indexOf(h);
+			if (index > -1) {
+				handlers[evt].splice(index, 1);
+			}
+		};
+	}
+	return function () {
+	};
+}
+
+
 
 module.exports.gulp = sandbox;
 
