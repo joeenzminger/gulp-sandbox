@@ -73,6 +73,15 @@ var sandbox = function () {
     	}
     }
 
+    that.new = function (dependencies) {
+    	var sb = new sandbox();
+    	that.task(uuid.v1(), dependencies || [], function () {
+    		return sb.exec();
+    	});
+    	return sb;
+    }
+
+    
     that.error = function (err) {
     	var errorInstance = new sandbox();
     	errorInstance.task('error', function () {
