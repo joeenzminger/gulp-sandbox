@@ -56,20 +56,25 @@ var sandbox = function () {
         return gulpfile.exports;
     };
 
+    
     that.all = function (tasks, dependencies) {
-    	var tasks = [];
-    	for (var i in tasks) {
-    		(function (task) {
-    			var id = uuid.v1();
-    			tasks.push(id);
-    			that.task(id, dependencies || [], task);
-    		})(tasks[i]);
+    	var all = [];
+    	var push = function (task) {
+    		var id = uuid.v1();
+    		all.push(id);
+    		that.task(id, dependencies || [], task);
+    	}
+    	if (tasks && tasks.length) {
+    		for (var i = 0; i < tasks.length; ++i) {
+    			push(tasks[i]);
+    		}
     	}
     	return {
     		then: function (name, task) {
-    			that.task(name, tasks, task);
+    			that.task(name, all, task);
     			return that;
-    		}
+    		},
+    		push: push
     	}
     }
 

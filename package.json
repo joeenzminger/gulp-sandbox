@@ -1,6 +1,6 @@
 {
   "name": "gulp-sandbox",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "A module for running sandboxed instances of gulp within a node.js application.",
   "main": "index.js",
   "scripts": {
