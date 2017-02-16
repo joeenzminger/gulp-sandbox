@@ -22,7 +22,7 @@ var $emit = function (evt, data) {
 	}
 }
 
-var sandbox = function () {
+var sandbox = function (callback) {
     let that = new gulp.constructor();
    
     that.run = function () {
@@ -69,13 +69,23 @@ var sandbox = function () {
     			push(tasks[i]);
     		}
     	}
-    	return {
+    	var ret = {
     		then: function (name, task) {
     			that.task(name, all, task);
     			return that;
     		},
-    		push: push
+    		push: push,
+    		exec: function () {
+    			return that.exec();
+    		},
+    		callback: function (cb) {
+    			if (cb) {
+    				cb.call(ret, ret);
+    			}
+    			return ret;
+    		}
     	}
+    	return ret;
     }
 
     that.new = function (dependencies) {
@@ -84,6 +94,12 @@ var sandbox = function () {
     		return sb.exec();
     	});
     	return sb;
+    }
+
+    that.callback = function (cb) {
+    	if (cb) {
+    		cb.call(that, that);
+    	}
     }
 
     
@@ -118,6 +134,7 @@ var sandbox = function () {
 
         return that.run(run);
     }
+    that.callback(callback);
     return that;
 };
 
