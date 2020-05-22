@@ -1,192 +1,224 @@
 ﻿"use strict";
-var gulp = require('gulp');
-var Q = require('q');
-var assert = require('assert').ok;
-var util = require('util');
-var Module = require('module');
-var uuid = require('uuid');
 
-var handlers = {};
+const gulp = require('gulp');
+const assert = require('assert').ok;
+const util = require('util');
+const Module = require('module');
+const uuid = require('uuid');
+const Orchestrator = require('orchestrator');
 
-var $emit = function (evt, data) {
-	if (handlers[evt]) {
-		for (var i = 0; i < handlers[evt].length; ++i) {
-			handlers[evt][i](data);
+class Sandbox extends gulp.Gulp {
+	constructor(callback) {
+		super();
+		this.orchestrator = new Orchestrator();
+		this.callback(callback);
+	}
+
+	/**
+	 * Runs all tasks passed into the arguments list.
+	 * Runs the default task if no arguments specified.
+	 *
+	 * @returns {function} Returns a Promise.
+	 */
+	run() {
+		return new Promise((resolve, reject) => {
+			const tasks = arguments.length ? [...arguments] : ['default'];
+
+			this.orchestrator.start(...tasks, (err) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Runs all registered tasks.
+	 *
+	 * @returns {function} Returns a Promise.
+	 */
+	runAll() {
+		return new Promise((resolve, reject) => {
+			this.orchestrator.start((err) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Registers a task (with optional dependencies) to execute.
+	 *
+	 * @param {string} name The name of the task.
+	 * @param {string[]} dependencies Optional. The array of task dependencies.
+	 * @param {function} fn The function to execute.
+	 *
+	 * @returns {object} Task registrar for chaining.
+	 */
+	task(name, dependencies, fn) {
+		return this.orchestrator.add(name, dependencies, fn);
+	}
+
+	/**
+	 * Deprecated. Use runAll() instead.
+	 *
+	 * @returns {function} Returns a Promise.
+	 */
+	exec() {
+		return this.runAll();
+	}
+
+	/**
+	 * Loads a gulpfile
+	 *
+	 * @param {string} path The path of the file.
+	 * @param {object} parent The module object.
+	 */
+	load(path, parent) {
+		const that = this;
+		assert(path, 'missing path');
+		assert(util.isString(path), 'path must be a string');
+		parent = parent || require.main;
+
+		const filename = Module._resolveFilename(path, parent);
+		const gulpfile = new Module(filename, parent);
+		const base = gulpfile.require;
+
+		gulpfile.require = function (request) {
+			if (request === 'gulp') {
+				return that;
+			}
+			return base(request);
+		}
+
+		gulpfile.load(filename);
+		return gulpfile.exports;
+	}
+
+	/**
+	 * Allows you to throw an error to stop a flow from continuing.
+	 *
+	 * @param {object} err The error to throw.
+	 *
+	 * @returns {function} Returns a Promise.
+	 */
+	error(err) {
+		const errorInstance = new Sandbox();
+
+		errorInstance.task('error', () => {
+			throw err;
+		});
+
+		return errorInstance.runAll();
+	};
+
+	/**
+	 * Callback function to allow for `this` inside of your callback function
+	 * to refer to the sandbox instance.
+	 *
+	 * @param {function} cb The callback function.
+	 */
+	callback(cb) {
+		if (cb) {
+			cb.call(this, this);
 		}
 	}
 
-	if (handlers['all']) {
-		for (var i = 0; i < handlers['all'].length; ++i) {
-			handlers['all'][i](evt, data);
+	/**
+	 * Registers all tasks and dependencies.
+	 * Each task registered will be assigned the same set of dependencies provided.
+	 *
+	 * @param {function[]} tasks Array of functions to register.
+	 * @param {string[]} dependencies Array of strings for dependencies.
+	 *
+	 * @returns {object} A psuedo sandbox object with limited functionality.
+	 */
+	all(tasks, dependencies) {
+		const all = [];
+
+		const then = (name, task) => {
+			this.task(name, all, task);
+			return this;
+		};
+
+		const push = function (task) {
+			const id = uuid.v1();
+			all.push(id);
+			this.task(id, dependencies || [], task);
 		}
-	}
-}
 
-var sandbox = function (callback) {
-    let that = new gulp.constructor();
-   
-    that.run = function () {
-        let defer = Q.defer();
-        var tasks = arguments.length ? arguments : ['default'];
+		if (tasks && tasks.length) {
+			for (let i = 0; i < tasks.length; ++i) {
+				push(tasks[i]);
+			}
+		}
 
-        that.on('stop', function (e) {
-            defer.resolve(e);
-        });
-        that.on('err', function (e) {
-        	$emit('error', e);
-            defer.reject(e);
-        });
-        that.start.apply(that, tasks);
-        return defer.promise;
-    };
-    that.load = function (path, parent) {
-        assert(path, 'missing path');
-        assert(util.isString(path), 'path must be a string');
-        parent = parent || require.main;
-        var filename = Module._resolveFilename(path, parent);
-        var gulpfile = new Module(filename, parent);
-        var base = gulpfile.require;
-        gulpfile.require = function (request) {
-            if (request === 'gulp') {
-                return that;
-            }
-            return base(request);
-        }
-        gulpfile.load(filename);
-        return gulpfile.exports;
-    };
-
-    
-    that.all = function (tasks, dependencies) {
-    	var all = [];
-    	var push = function (task) {
-    		var id = uuid.v1();
-    		all.push(id);
-    		that.task(id, dependencies || [], task);
-    	}
-    	if (tasks && tasks.length) {
-    		for (var i = 0; i < tasks.length; ++i) {
-    			push(tasks[i]);
-    		}
-    	}
-    	var ret = {
-    		then: function (name, task) {
-    			that.task(name, all, task);
-    			return that;
-    		},
-    		push: push,
-    		exec: function () {
-    			return that.exec();
-    		},
-    		callback: function (cb) {
-    			if (cb) {
-    				cb.call(ret, ret);
-    			}
-    			return ret;
-    		}
-    	}
-    	return ret;
-    }
-
-    that.new = function (dependencies) {
-    	var sb = new sandbox();
-    	that.task(uuid.v1(), dependencies || [], function () {
-    		return sb.exec();
-    	});
-    	return sb;
-    }
-
-    that.callback = function (cb) {
-    	if (cb) {
-    		cb.call(that, that);
-    	}
-    }
-
-    
-    that.error = function (err) {
-    	var errorInstance = new sandbox();
-    	errorInstance.task('error', function () {
-    		throw err;
-    	});
-    	return errorInstance.exec();
-    }
-    
-    that.exec = function () {
-        var tasks = {};
-        for (let i in that.tasks) {
-            tasks[i] = true;
-        }
-
-        for (let i in that.tasks) {
-            var task = that.tasks[i];
-            var dependencies = task.dep;
-            dependencies.forEach(function (dependency) {
-                if (tasks[dependency]) {
-                    delete tasks[dependency];
-                }
-            });
-        }
-
-        var run = [];
-        for (var i in tasks) {
-            run.push(i);
-        }
-
-        return that.run(run);
-    }
-    that.callback(callback);
-    return that;
-};
-
-
-sandbox.$on = function (evt, handler) {
-	if (typeof (handler) === 'function') {
-		handlers[evt] = handlers[evt] || [];
-		var h = function (data) {
-			try {
-				handler(data);
-			} catch (ex) {
+		const ret = {
+			then: then,
+			push: push,
+			exec: this.exec(),
+			callback: (cb) => {
+				if (cb) {
+					cb.call(ret, ret);
+				}
+				return ret;
 			}
 		};
-		handlers[evt].push(h);
-		return function () {
-			var index = handlers[evt].indexOf(h);
-			if (index > -1) {
-				handlers[evt].splice(index, 1);
-			}
-		};
+
+		return ret;
 	}
-	return function () {
+
+	/**
+	 * Deprecated. Use linkedInstance() instead.
+	 *
+	 * @param {string[]} dependencies Array of dependencies. Defaults to an empty array.
+	 *
+	 * @returns {object} The new instance of Sandbox.
+	 */
+	new(dependencies = []) {
+		return this.linkedInstance(dependencies);
 	};
-}
 
-sandbox.$all = function (handler) {
-	if (typeof (handler) === 'function') {
-		handlers['all'] = handlers['all'] || [];
-		var h = function (evt, data) {
-			try {
-				handler(evt, data);
-			} catch (ex) {
-			}
-		};
-		handlers['all'].push(h);
-		return function () {
-			var index = handlers[evt].indexOf(h);
-			if (index > -1) {
-				handlers[evt].splice(index, 1);
-			}
-		};
+	/**
+	 * Creates a child instance of Sandbox. When the parent instance executes
+	 * its tasks, the child instance's tasks will also be run.
+	 *
+	 * @param {string[]} dependencies Array of dependencies. Defaults to an empty array.
+	 *
+	 * @returns {object} The new instance of Sandbox.
+	 */
+	linkedInstance(dependencies = []) {
+		const sb = new Sandbox();
+
+		this.task(uuid.v1(), dependencies, function () {
+			return sb.runAll();
+		});
+
+		return sb;
 	}
-	return function () {
-	};
 }
 
+const sandbox = function (callback) {
+	return new Sandbox(callback);
+}
 
-
+/**
+ * Creates a new instance of Sandbox.
+ */
 module.exports.gulp = sandbox;
 
+/**
+ * Takes a task with no dependencies and runs it immediately.
+ *
+ * @param {function} task The task to run.
+ *
+ * @returns {function} Returns a promise.
+ */
 module.exports.task = function (task) {
 	var instance = sandbox();
 	instance.task('default', task);
-    return instance.run();
+	return instance.run();
 };
