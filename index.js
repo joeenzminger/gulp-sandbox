@@ -144,7 +144,7 @@ class Sandbox extends gulp.Gulp {
             return this;
         };
 
-        const push = function (task) {
+        const push = (task) => {
             const id = uuid.v1();
             all.push(id);
             this.task(id, dependencies || [], task);
