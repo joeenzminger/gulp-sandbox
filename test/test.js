@@ -241,5 +241,75 @@ describe('gulp-sandbox', function () {
                     });
             });
         });
+
+        describe('all()', function () {
+            it('should return an object', function () {
+                const inst = sandbox.gulp();
+
+                inst.task('build', function () {
+                    // noop
+                });
+
+                const result = inst.all();
+
+                assert.strictEqual(typeof(result), 'object');
+            });
+
+            describe('all().then', function () {
+                it('should be a function', function () {
+                    const inst = sandbox.gulp();
+
+                    inst.task('build', function () {
+                        // noop
+                    });
+
+                    const result = inst.all();
+
+                    assert.strictEqual(typeof(result.then), 'function');
+                });
+            });
+
+            describe('all().push', function () {
+                it('should be a function', function () {
+                    const inst = sandbox.gulp();
+
+                    inst.task('build', function () {
+                        // noop
+                    });
+
+                    const result = inst.all();
+
+                    assert.strictEqual(typeof(result.push), 'function');
+                });
+            });
+
+            describe('all().exec', function () {
+                it('should be a function', function () {
+                    const inst = sandbox.gulp();
+
+                    inst.task('build', function () {
+                        // noop
+                    });
+
+                    const result = inst.all();
+
+                    assert.strictEqual(typeof(result.exec), 'function');
+                });
+            });
+
+            describe('all().callback', function () {
+                it('should be a function', function () {
+                    const inst = sandbox.gulp();
+
+                    inst.task('build', function () {
+                        // noop
+                    });
+
+                    const result = inst.all();
+
+                    assert.strictEqual(typeof(result.callback), 'function');
+                });
+            });
+        });
     });
 });

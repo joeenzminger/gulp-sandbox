@@ -159,7 +159,7 @@ class Sandbox extends gulp.Gulp {
         const ret = {
             then: then,
             push: push,
-            exec: this.exec(),
+            exec: () => this.exec(),
             callback: (cb) => {
                 if (cb) {
                     cb.call(ret, ret);
