@@ -9,7 +9,7 @@ Existing solutions (like gulp-chug), use exec to fork new processes to run the g
 This appears to not be a popular approach for a number of reasons.
 
 gulp-sandbox is designed to accomplish the same goal without writing complicated layers of abstraction around
-the existing gulp infrastructure.It uses gulp, but it extends it to allow developers to create multiple instances
+the existing gulp infrastructure. It uses gulp, but it extends it to allow developers to create multiple instances
 of gulp within the same process. These instances are wholly independent but run in the same process. Developers can
 build task modules and invoke them in other task modules without worrying about task name collisions.
 
@@ -128,3 +128,11 @@ gulp.runAll()
 ```
 
 Both `runAll()` and `run()` return a promise.
+
+## Release Notes
+
+### v1.0.0
+
+This major version change is due to upgrading gulp to v4. All of the functionality in this library
+is backward compatible with v0.12.0, but it now requires gulp v4, which could be a breaking
+change for you (especially if you are on node v8).
