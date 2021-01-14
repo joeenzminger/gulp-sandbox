@@ -63,8 +63,7 @@ class Sandbox extends gulp.Gulp {
     }
 
     /**
-     * Deprecated. Use runAll() instead.
-     *
+     * @deprecated Use runAll() instead.
      * @returns {function} Returns a Promise.
      */
     exec() {
